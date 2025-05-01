@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎁 Aena’s Surprise Party 🎂</title>
+  <style>
+    body {
+      margin: 0;
+      background: #fff0f5;
+      font-family: 'Comic Sans MS', cursive;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: start;
+      min-height: 100vh;
+      text-align: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      color: #ff3399;
+      font-size: 2rem;
+    }
+
+    p {
+      font-size: 1.1rem;
+      color: #aa336a;
+    }
+
+    .cake-container {
+      position: relative;
+      width: 250px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+
+    .cake {
+      width: 100%;
+      transition: transform 0.7s ease-in-out;
+    }
+
+    .cut {
+      transform: rotateY(180deg);
+    }
+
+    canvas.confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    .box-game {
+      margin-top: 40px;
+    }
+
+    .box-title {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: #cc3399;
+    }
+
+    .boxes {
+      display: grid;
+      grid-template-columns: repeat(3, 90px);
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .box {
+      font-size: 2rem;
+      background: #fff;
+      border: 3px solid #ff99cc;
+      border-radius: 10px;
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.3s;
+      background-image: url('https://i.pinimg.com/564x/cf/4e/f7/cf4ef77384e1b9ef5f949dc3bc9e682b.jpg');
+      background-size: cover;
+    }
+
+    .box:hover {
+      transform: scale(1.1);
+    }
+
+    .disabled {
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    .reveal-message {
+      margin-top: 15px;
+      font-size: 1.1rem;
+      color: #ff3399;
+    }
+
+    .surprise-img {
+      margin-top: 10px;
+      width: 220px;
+      border-radius: 10px;
+      display: none;
+      box-shadow: 0 0 10px #ff99cc;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎉 Aena's Surprise Page 🎉</h1>
+  <p>Tap the cake 3 times to slice it 🍰</p>
+
+  <div class="cake-container">
+    <img id="cake" class="cake" src="cake.gif" alt="cake" />
+  </div>
+
+  <canvas id="confetti" class="confetti"></canvas>
+
+  <!-- 🎁 Surprise Boxes -->
+  <div class="box-game">
+    <p class="box-title">🎁 Choose ONE mystery box!</p>
+    <div class="boxes" id="boxes"></div>
+    <div class="reveal-message" id="revealMessage"></div>
+    <img class="surprise-img" id="surpriseImg" src="" />
+  </div>
+
+  <script>
+    // Confetti setup
+    const confetti = document.getElementById('confetti');
+    const ctx = confetti.getContext('2d');
+    confetti.width = window.innerWidth;
+    confetti.height = window.innerHeight;
+
+    const pieces = [];
+    for (let i = 0; i < 200; i++) {
+      pieces.push({
+        x: Math.random() * confetti.width,
+        y: Math.random() * confetti.height - confetti.height,
+        size: Math.random() * 6 + 4,
+        speed: Math.random() * 3 + 2,
+        color: `hsl(${Math.random() * 360}, 100%, 50%)`
+      });
+    }
+
+    function updateConfetti() {
+      ctx.clearRect(0, 0, confetti.width, confetti.height);
+      pieces.forEach(p => {
+        p.y += p.speed;
+        if (p.y > confetti.height) p.y = -10;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      requestAnimationFrame(updateConfetti);
+    }
+
+    // Cake click
+    let taps = 0;
+    const cake = document.getElementById('cake');
+    cake.addEventListener('click', () => {
+      taps++;
+      if (taps === 3) {
+        cake.classList.add('cut');
+        updateConfetti();
+      }
+    });
+
+    // Surprise box logic
+    const messages = [
+      "🤗 You got a virtual hug from aena !",
+      "😍 sunghoon smile attack!",
+      "🧁 virtual cupcake from aena !",
+      "🐰 5 Rs chocolate !",
+      "🧦 EMPTY , qismat kharab haha",
+      "😉 Jake heart !",
+      "🥰 Rs 100 chocolate yooo",
+      "😂 4.00 GPA ab khosh",
+      "💖 best wishes from me !"
+    ];
+
+    const images = [
+      "bear.gif", // Hug
+      "sunghoon.gif",
+      "cupcake.gif",
+      "",
+      "",
+      "jake.gif",
+      "",
+      "",
+      ""
+    ];
+
+    let clicked = false;
+    const boxesContainer = document.getElementById('boxes');
+
+    const messageDiv = document.getElementById('revealMessage');
+    const img = document.getElementById('surpriseImg');
+
+    for (let i = 0; i < 9; i++) {
+      const box = document.createElement('div');
+      box.className = 'box';
+      box.onclick = () => {
+        if (clicked) return;
+        clicked = true;
+        messageDiv.textContent = messages[i];
+        img.src = images[i];
+        img.style.display = "block";
+        Array.from(document.getElementsByClassName('box')).forEach(b => {
+          b.classList.add('disabled');
+        });
+        updateConfetti();
+      };
+      boxesContainer.appendChild(box);
+    }
+  </script>
+</body>
+</html>
